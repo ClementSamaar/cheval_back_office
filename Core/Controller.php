@@ -6,7 +6,7 @@ class Controller
 
     public function __construct(?string $ctrl, ?string $action){
         if (!isset($ctrl)){
-            $this->_urlArgs['ctrl'] = 'DefaultCtrl';
+            $this->_urlArgs['ctrl'] = 'TableCtrl';
         }
         else{
             $this->_urlArgs['ctrl'] = ucfirst($ctrl) . 'Ctrl';

@@ -27,30 +27,32 @@ class User
         $privileges = $pdo->getPdo()->prepare($query);
         $privileges->execute();
         $privileges = $privileges->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($privileges[0] as $privilege => $granted) {
-            if ($granted == 'Y') {
-                $this->privileges[] = preg_replace('/_priv/', '', $privilege);
-                if ($privilege == 'Select_priv' or $privilege == 'Insert_priv' or $privilege == 'Update_priv' or $privilege == 'Delete_priv')
-                    $this->grantedTables = '*';
+        if (isset($privileges)){
+            foreach ($privileges[0] as $privilege => $granted) {
+                if ($granted == 'Y') {
+                    $this->privileges[] = preg_replace('/_priv/', '', $privilege);
+                    if ($privilege == 'Select_priv' or $privilege == 'Insert_priv' or $privilege == 'Update_priv' or $privilege == 'Delete_priv')
+                        $this->grantedTables = '*';
+                }
             }
-        }
 
-        if ($this->grantedTables != '*') {
-            $query = '
+            if ($this->grantedTables != '*') {
+                $query = '
             SELECT Table_name, Table_priv
             FROM tables_priv
             WHERE Db="cheval_simulator" AND User=' . $pdo->getPdo()->quote($this->username);
-            $specPrivileges = $pdo->getPdo()->prepare($query);
-            $specPrivileges->execute();
-            $specPrivileges = $specPrivileges->fetchAll(PDO::FETCH_ASSOC);
-            $specPrivileges[0]['Table_priv'] = explode(',', $specPrivileges[0]['Table_priv']);
+                $specPrivileges = $pdo->getPdo()->prepare($query);
+                $specPrivileges->execute();
+                $specPrivileges = $specPrivileges->fetchAll(PDO::FETCH_ASSOC);
+                $specPrivileges[0]['Table_priv'] = explode(',', $specPrivileges[0]['Table_priv']);
 
-            foreach ($specPrivileges[0]['Table_priv'] as $specPrivilege){
-                $this->privileges[] = $specPrivilege;
-            }
+                foreach ($specPrivileges[0]['Table_priv'] as $specPrivilege){
+                    $this->privileges[] = $specPrivilege;
+                }
 
-            foreach ($specPrivileges as $specPrivilege){
-                $this->grantedTables[] = $specPrivilege['Table_name'];
+                foreach ($specPrivileges as $specPrivilege){
+                    $this->grantedTables[] = $specPrivilege['Table_name'];
+                }
             }
         }
     }

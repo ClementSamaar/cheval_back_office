@@ -1,0 +1,114 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+#header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1em;
+    height: 50px;
+    padding: 10px;
+    background-color: #eee;
+}
+#header i {
+    margin-left: 10px;
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+}
+
+#header i:hover {
+    color: #555;
+}
+
+#buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  #buttons button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  #buttons button:hover {
+    background-color: #555;
+  }
+
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 8px;
+  }
+
+  tr:nth-child(even){background-color: #f2f2f2}
+
+  th {
+    background-color: black;
+    color: white;
+  }
+
+  .pagination {
+    display: inline-block;
+    margin-top: 10px;
+  }
+
+  .pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+  }
+
+  .pagination a.active {
+    background-color: black;
+    color: white;
+  }
+
+  .pagination a:hover:not(.active) {background-color: #ddd;}
+
+  input[type="text"] {
+    border-radius: 20px;
+    padding: 10px;
+    width: 70%;
+    margin: 20px auto;
+    display: block;
+    font-size: 16px;
+  }
+  
+  input[type="text"]::placeholder {
+    color: #ccc;
+  }
+  
+  input[type="text"] + i {
+    position: relative;
+    left: -40px;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  input[type="text"] + i:hover {
+    color: #555;
+  }
+
+.fa-trash,
+.fa-pen-to-square {
+  cursor: pointer;
+}  

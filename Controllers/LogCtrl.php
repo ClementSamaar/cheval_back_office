@@ -14,21 +14,38 @@ class LogCtrl
 
     public function loginAction() {
         $pdo = new PDOConnect($_ENV['DB_ROOT_USERNAME'], $_ENV['DB_ROOT_PASS']);
+        $query = 'SELECT authentication_string 
+                FROM user 
+                WHERE User=' . $pdo->getPdo()->quote($_POST['username']) . ' 
+                AND authentication_string=PASSWORD(' . $pdo->getPdo()->quote($_POST['password']) . ')';
         $pdo->connect();
-        $prep = $pdo->getPdo()->prepare('SELECT authentication_string FROM user WHERE User=' . $pdo->getPdo()->quote($_POST['username']));
-        $prep->execute();
-        $binaryPass = pack('H*', bin2hex($_POST['password']));
-        echo hash('sha256', $binaryPass) . '<br>';
-        echo $prep->fetch()[0];
+        $credentials = $pdo->getPdo()->prepare($query);
+        $credentials->execute();
+        $credentials = $credentials->fetch();
 
-        $envUsernameVar = 'DB_' . strtoupper($_POST['username']) . '_USERNAME';
-        $envPasswordVar = 'DB_' . strtoupper($_POST['username']) . '_PASSWORD';
-        if (!isset($_ENV[$envUsernameVar])){
-            putenv($envUsernameVar . '=' . $_POST['username']);
+        if (isset($credentials)) {
+            $envUsernameVar = 'DB_' . strtoupper($_POST['username']) . '_USERNAME';
+            $envPasswordVar = 'DB_' . strtoupper($_POST['username']) . '_PASSWORD';
+            if (!isset($_ENV[$envUsernameVar])){
+                putenv($envUsernameVar . '=' . $_POST['username']);
+            }
+
+            if (!isset($_ENV[$envPasswordVar])){
+                putenv($envPasswordVar . '=' . $_POST['password']);
+            }
+
+            $_SESSION['username'] = $_POST['username'];
+        }
+    }
+
+    public function logoutAction() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        if (!isset($_ENV[$envPasswordVar])){
-            putenv($envPasswordVar . '=' . $_POST['password']);
+        if ($_SESSION['username']) {
+            session_destroy();
+            header('Location: login.php');
         }
     }
 }

@@ -39,6 +39,20 @@ class Table
         else $this->_empty = true;
     }
 
+    public function insertRow(PDOConnect $pdo, array $values) : bool {
+        $pdo->connect();
+        if (sizeof($this->_attributes) == sizeof($values)) {
+            $query = 'INSERT INTO ' . $this->_name . ' VALUES (';
+            for ($i = 0; $i < sizeof($values); $i++) {
+                if ($i > 0) $query .= ', ';
+                $query .= $pdo->getPdo()->quote($values[$i]);
+            }
+            $insertStatement = $pdo->getPdo()->prepare($query);
+            return $insertStatement->execute();
+        }
+        else return false;
+    }
+
     public function selectAll(PDOConnect $pdo, int $limit, int $pageNumber) : void {
         $pdo->connect();
         $query = 'SELECT * FROM ' . $this->_name . ' LIMIT ' . $limit . ' OFFSET ' . $limit * ($pageNumber - 1);
@@ -65,12 +79,11 @@ class Table
             $firstValuePassed = false;
             for ($i = 0; $i < sizeof($values); $i++){
                 if (!is_null($values[$i])) {
-                    if ($i > 0 and (!is_null($values[$i - 1]) or $firstValuePassed)) {
+                    if ($i - 1 > 0 and $i > 0 and !is_null($values[$i - 1]) or $firstValuePassed) {
                         $query .= ', ';
                         $firstValuePassed = true;
                     }
                     $query .= $this->_attributes[$i] . '=' . $pdo->getPdo()->quote($values[$i]);
-
                 }
             }
             $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
