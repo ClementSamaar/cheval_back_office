@@ -4,15 +4,22 @@ require 'vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-/*if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if (!isset($_SESSION['username'])) {
-    header('Location: ?ctrl=log&action=displayLogin');
-}*/
-
 $ctrlName = $_GET['ctrl'] ?? null;
 $actionName = $_GET['action'] ?? null;
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['envUsernameVar']) and $ctrlName != 'log' and ($actionName != 'displayLogin' or $actionName != 'login')) {
+    header('Location: ?ctrl=log&action=displayLogin');
+    exit();
+}
+
+else if (isset($_SESSION['envUsernameVar']) and $ctrlName == 'log' and ($actionName == 'displayLogin' or $actionName == 'login')) {
+    header('Location: ?ctrl=table');
+    exit();
+}
 
 View::openBuffer();
 

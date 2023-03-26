@@ -38,28 +38,39 @@ class User
 
             if ($this->grantedTables != '*') {
                 $query = '
-            SELECT Table_name, Table_priv
-            FROM tables_priv
-            WHERE Db="cheval_simulator" AND User=' . $pdo->getPdo()->quote($this->username);
+                SELECT Table_name, Table_priv
+                FROM tables_priv
+                WHERE Db="cheval_simulator" AND User=' . $pdo->getPdo()->quote($this->username);
                 $specPrivileges = $pdo->getPdo()->prepare($query);
                 $specPrivileges->execute();
                 $specPrivileges = $specPrivileges->fetchAll(PDO::FETCH_ASSOC);
-                $specPrivileges[0]['Table_priv'] = explode(',', $specPrivileges[0]['Table_priv']);
+                if (!empty($specPrivileges)) {
+                    $specPrivileges[0]['Table_priv'] = explode(',', $specPrivileges[0]['Table_priv']);
 
-                foreach ($specPrivileges[0]['Table_priv'] as $specPrivilege){
-                    $this->privileges[] = $specPrivilege;
-                }
+                    foreach ($specPrivileges[0]['Table_priv'] as $specPrivilege){
+                        $this->privileges[] = $specPrivilege;
+                    }
 
-                foreach ($specPrivileges as $specPrivilege){
-                    $this->grantedTables[] = $specPrivilege['Table_name'];
+                    foreach ($specPrivileges as $specPrivilege){
+                        $this->grantedTables[] = $specPrivilege['Table_name'];
+                    }
                 }
+                else $this->grantedTables = null;
+            }
+            else {
+                $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+                $pdo->connect();
+                $grantedTables = $pdo->getPdo()->prepare('SHOW TABLES');
+                $grantedTables->execute();
+                $grantedTables = $grantedTables->fetchAll(PDO::FETCH_COLUMN);
+                $this->grantedTables = $grantedTables;
             }
         }
     }
 
-    public function getPrivileges(): array { return $this->privileges; }
+    public function getPrivileges(): ?array { return $this->privileges; }
 
-    public function getGrantedTables(): array|string { return $this->grantedTables; }
+    public function getGrantedTables(): array|string|null { return $this->grantedTables; }
 
 
 }

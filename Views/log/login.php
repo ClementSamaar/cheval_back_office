@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="Views/log/login.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
 </head>
@@ -19,8 +19,12 @@
           <input type="password" id="password" name="password" required>
         </div>
         <div class="form-group">
-         <input type="submit" name="submit" id="submit">Se connecter</input>
+         <button type="submit" name="submit" id="submit">Se connecter</button>
         </div>
+        <?php
+        if (isset($A_view['error']) and $A_view['error'] == '1')
+            echo '<p>Les informations entrées sont incorrectes, veuillez réessayer</p>';
+        ?>
     </form>
       
     

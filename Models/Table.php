@@ -13,7 +13,6 @@ class Table
         $this->_name = $tableName;
         $this->_attributes = [];
         $this->_rows = [];
-
         $pdo->connect();
         $pk = $pdo->getPdo()->prepare('SHOW KEYS FROM ' . $this->_name . ' WHERE Key_name = "PRIMARY"');
         $pk->execute();
@@ -36,7 +35,10 @@ class Table
                 $this->_rows[] = $row;
             }
         }
-        else $this->_empty = true;
+        else {
+            $this->_empty = true;
+            $this->_rowAmount = 0;
+        }
     }
 
     public function insertRow(PDOConnect $pdo, array $values) : bool {
