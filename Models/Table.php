@@ -74,7 +74,7 @@ class Table
         $this->initArrays($tableData);
     }
 
-    public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {
+    /*public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {
         $pdo->connect();
         if (sizeof($this->_attributes) == sizeof($values)) {
             $query = 'UPDATE ' . $this->_name . ' SET ';
@@ -87,6 +87,22 @@ class Table
                     }
                     $query .= $this->_attributes[$i] . '=' . $pdo->getPdo()->quote($values[$i]);
                 }
+            }
+            $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
+            $updateStatement = $pdo->getPdo()->prepare($query);
+            return $updateStatement->execute();
+        }
+        else return false;
+    }*/
+
+    public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {
+        $pdo->connect();
+        if (sizeof($this->_attributes) == sizeof($values)) {
+            $query = 'UPDATE ' . $this->_name . ' SET ';
+            $firstValuePassed = false;
+            for ($i = 0; $i < sizeof($values); $i++){
+                if ($i > 0) $query .= ', ';
+                $query .= $this->_attributes[$i] . '=' . $pdo->getPdo()->quote($values[$i]);
             }
             $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
             $updateStatement = $pdo->getPdo()->prepare($query);
