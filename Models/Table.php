@@ -18,17 +18,20 @@ class Table
         $pk->execute();
         $pk = $pk->fetch(PDO::FETCH_ASSOC);
         $this->_pk = $pk['Column_name'];
+
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+        $pdo->setDatabase('information_schema');
+        $pdo->connect();
+        $attributes = $pdo->getPdo()->prepare('SELECT COLUMN_NAME FROM COLUMNS WHERE TABLE_SCHEMA="cheval_simulator" AND TABLE_NAME= :table');
+        $attributes->bindParam(':table', $tableName);
+        $attributes->execute();
+        $this->_attributes = $attributes->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    private function initArrays(array $tableData) : void {
+    private function initData(array $tableData) : void {
         if (!empty($tableData)){
             $this->_empty = false;
             $this->_rowAmount = sizeof($tableData);
-
-            // INIT ATTRIBUTES
-            foreach ($tableData[0] as $attribute => $firstRow){
-                $this->_attributes[] = $attribute;
-            }
 
             // INIT ROWS
             foreach ($tableData as $row){
@@ -41,18 +44,25 @@ class Table
         }
     }
 
-    public function insertRow(PDOConnect $pdo, array $values) : bool {
+    public function insertRow(PDOConnect $pdo) : bool {
+        var_dump($_POST);
         $pdo->connect();
-        if (sizeof($this->_attributes) == sizeof($values)) {
-            $query = 'INSERT INTO ' . $this->_name . ' VALUES (';
-            for ($i = 0; $i < sizeof($values); $i++) {
-                if ($i > 0) $query .= ', ';
-                $query .= $pdo->getPdo()->quote($values[$i]);
+        $query = 'INSERT INTO ' . $this->_name . ' VALUES (';
+        foreach ($this->_attributes as $attribute) {
+            if ($attribute == $this->_pk) $value = 1;
+            else {
+                if (!isset($_POST[$attribute]) or empty($_POST[$attribute]))  $value = 'NULL';
+                else $value = $_POST[$attribute];
             }
-            $insertStatement = $pdo->getPdo()->prepare($query);
-            return $insertStatement->execute();
+            if ($attribute == 'date_de_naissance') $value = '2002-12-09';
+            elseif ($attribute == 'date_inscription' or $attribute == 'derniere_connexion') $value = date('Y-m-d');
+            $query .= $pdo->getPdo()->quote($value) . ', ';
         }
-        else return false;
+        $query = substr($query, 0, strlen($query) - 2);
+        $query .= ')';
+        echo $query;
+        $insertStatement = $pdo->getPdo()->prepare($query);
+        return $insertStatement->execute();
     }
 
     public function selectAll(PDOConnect $pdo, int $limit, int $pageNumber) : void {
@@ -61,7 +71,7 @@ class Table
         $tableData = $pdo->getPdo()->prepare($query);
         $tableData->execute();
         $tableData = $tableData->fetchAll(PDO::FETCH_ASSOC);
-        $this->initArrays($tableData);
+        $this->initData($tableData);
     }
 
     public function orderBy(PDOConnect $pdo, string $attribute, string $order, int $limit, int $pageNumber) : void {
@@ -71,7 +81,7 @@ class Table
         $tableData = $pdo->getPdo()->prepare($query);
         $tableData->execute();
         $tableData = $tableData->fetchAll(PDO::FETCH_ASSOC);
-        $this->initArrays($tableData);
+        $this->initData($tableData);
     }
 
     /*public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {

@@ -40,4 +40,8 @@ class PDOConnect
      * @return PDO|null
      */
     public function getPdo(): ?PDO { return $this->_pdo; }
+
+    public function setDatabase(string $db): void {
+        $this->_database = $db;
+    }
 }

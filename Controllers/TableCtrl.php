@@ -20,14 +20,14 @@ class TableCtrl
         if (!empty($privileges) and in_array('Select', $privileges)) $select = true;
         else $select = false;
         $A_content = [
-            'title' => ucfirst($_GET['table']),
+            'title' => ucfirst($name),
             'bodyView' => 'table/table',
             'bodyContent' => [
                 'select'          => $select,
                 'userPrivileges'  => $privileges,
                 'tableAttributes' => $attributes,
                 'tableRows'       => $rows,
-                'table'           => $name,
+                'tableName'           => $name,
                 'rowAmount'       => $rowAmount,
                 'page'            => $page
             ]
@@ -39,11 +39,11 @@ class TableCtrl
     public function selectRowsAction() {
         $user = new User($_ENV[$_SESSION['envUsernameVar']]);
         $user->fetchGrants();
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+        $pdo->connect();
+        $table = new Table($pdo, $_GET['table']);
         if (!empty($user->getPrivileges()) and in_array('Select', $user->getPrivileges())){
             if (isset($_GET['table']) and in_array($_GET['table'], $user->getGrantedTables())) {
-                $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
-                $pdo->connect();
-                $table = new Table($pdo, $_GET['table']);
                 $table->selectAll($pdo, 10, $_GET['page']);
             }
             else {
@@ -62,11 +62,20 @@ class TableCtrl
     }
 
     public function insertRowAction() {
-
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+        $pdo->connect();
+        $user = new User($_ENV[$_SESSION['envUsernameVar']]);
+        $user->fetchGrants();
+        if (in_array('Insert', $user->getPrivileges())) {
+            $values = $_POST;
+            $table = new Table($pdo, $_GET['table']);
+            $table->insertRow($pdo);
+        }
+        else echo 'Permission denied !';
     }
 
     public function updateRowAction() {
-        $pdo = new PDOConnect($_ENV['DB_CS_COMMUNITY_MANAGER_USERNAME'], $_ENV['DB_CS_COMMUNITY_MANAGER_PASS']);
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
         $pdo->connect();
         $user = new User($_ENV[$_SESSION['envUsernameVar']]);
         $user->fetchGrants();
@@ -77,14 +86,17 @@ class TableCtrl
     }
 
     public function deleteRowAction() {
-        $pdo = new PDOConnect($_ENV['DB_CS_COMMUNITY_MANAGER_USERNAME'], $_ENV['DB_CS_COMMUNITY_MANAGER_PASS']);
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
         $pdo->connect();
         $user = new User($_ENV[$_SESSION['envUsernameVar']]);
         $user->fetchGrants();
         if (in_array('Delete', $user->getPrivileges())) {
             $table = new Table($pdo, $_GET['table']);
             $table->deleteRow($pdo, $_GET['id']);
+            header('Location: ?ctrl=table&action=selectRows&table=' . $_GET['table'] . '&page=1');
+            exit();
         }
         else echo 'Permission denied !';
+
     }
 }
