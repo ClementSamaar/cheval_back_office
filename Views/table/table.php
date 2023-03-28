@@ -35,16 +35,34 @@
 		  <h2>Ajouter un élément</h2>
             <?php
             foreach ($A_view['tableAttributes'] as $attribute) {
-                echo '
-                <label for="' . $attribute . '"><b>' . $attribute . '</b></label>
-                <input type="text" name="' . $attribute . '" id="' . $attribute . '">';
+                if ($attribute['COLUMN_NAME'] == $A_view['pk'] and $attribute['DATA_TYPE'] == 'bigint' or $attribute['DATA_TYPE'] == 'int')
+                    continue;
+                elseif ($attribute['DATA_TYPE'] == 'enum') {
+                    echo '
+                    <label for="' . $attribute['COLUMN_NAME'] . '"><b>' . $attribute['COLUMN_NAME'] . '</b></label>
+                    <select name="' . $attribute['COLUMN_NAME'] . '" id="' . $attribute['COLUMN_NAME'] . '">';
+                    if ($attribute['IS_NULLABLE']) echo '<option value="NULL"></option>';
+                    preg_match_all("/'(\w+)'/", $attribute['COLUMN_TYPE'], $options);
+                    foreach ($options[1] as $option) {
+                        echo '<option value="' . $option . '">' . ucfirst($option) . '</option>';
+                    }
+                }
+                else {
+                    echo '
+                    <label for="' . $attribute['COLUMN_NAME'] . '"><b>' . $attribute['COLUMN_NAME'] . '</b></label>
+                    <input type="' . Table::getInputType($attribute['DATA_TYPE']) . '" 
+                           name="' . $attribute['COLUMN_NAME'] . '" 
+                           id="' . $attribute['COLUMN_NAME'] . '"';
+                    if (isset($attribute['CHARACTER_MAXIMUM_LENGTH'])) echo ' maxlength="' . $attribute['CHARACTER_MAXIMUM_LENGTH'] . '"';
+                    if ($attribute['IS_NULLABLE'] == 'NO') echo ' required';
+                    echo '>';
+                }
             }
             ?>
 		  <button type="submit" class="btn">Ajouter</button>
 		  <button type="button" class="btn cancel" onclick="closeForm1()">Fermer</button>
 		</form>
 	  </div>
-
 
 	  <div class="form-popup" id="myForm1">
 		<form method="POST" action="?ctrl=table&action=updateRow" class="form-container">
@@ -73,9 +91,10 @@
         <thead>
         <tr>
             <th></th>
+            <th></th>
             <?php
             foreach ($A_view['tableAttributes'] as $attribute) {
-                echo '<th>' . $attribute . '</th>';
+                echo '<th>' . $attribute['COLUMN_NAME'] . '</th>';
             }
             ?>
         </tr>
@@ -84,9 +103,14 @@
         <?php
         foreach ($A_view['tableRows'] as $row){
             echo '<tr>';
-            echo '<td>
-                    <a href="?ctrl=table&action=deleteRow&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]] . '"><i class="fa-solid fa-trash"></i></a> 
-                    <a href="?ctrl=table&action=deleteRow&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]] . '"><i class="fa-solid fa-pen-to-square"></i></a>
+            echo '<td><input type="checkbox" class="checkbox"></td>
+                  <td>
+                    <a href="?ctrl=table&action=deleteRow&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]['COLUMN_NAME']] . '">
+                        <i class="fa-solid fa-trash"></i>
+                    </a> 
+                    <a href="?ctrl=table&action=deleteRow&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]['COLUMN_NAME']] . '">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
                   </td>';
             foreach ($row as $value) {
                 echo '<td>' . $value . '</td>';

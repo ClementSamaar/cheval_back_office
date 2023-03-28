@@ -22,10 +22,14 @@ class Table
         $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
         $pdo->setDatabase('information_schema');
         $pdo->connect();
-        $attributes = $pdo->getPdo()->prepare('SELECT COLUMN_NAME FROM COLUMNS WHERE TABLE_SCHEMA="cheval_simulator" AND TABLE_NAME= :table');
+        $attributes = $pdo->getPdo()->prepare('
+            SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, COLUMN_TYPE
+            FROM COLUMNS 
+            WHERE TABLE_SCHEMA="cheval_simulator" AND TABLE_NAME= :table'
+        );
         $attributes->bindParam(':table', $tableName);
         $attributes->execute();
-        $this->_attributes = $attributes->fetchAll(PDO::FETCH_COLUMN);
+        $this->_attributes = $attributes->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function initData(array $tableData) : void {
@@ -49,14 +53,11 @@ class Table
         $pdo->connect();
         $query = 'INSERT INTO ' . $this->_name . ' VALUES (';
         foreach ($this->_attributes as $attribute) {
-            if ($attribute == $this->_pk) $value = 1;
-            else {
-                if (!isset($_POST[$attribute]) or empty($_POST[$attribute]))  $value = 'NULL';
-                else $value = $_POST[$attribute];
-            }
-            if ($attribute == 'date_de_naissance') $value = '2002-12-09';
-            elseif ($attribute == 'date_inscription' or $attribute == 'derniere_connexion') $value = date('Y-m-d');
-            $query .= $pdo->getPdo()->quote($value) . ', ';
+            if ($attribute['COLUMN_NAME'] == $this->_pk and $attribute['DATA_TYPE'] == 'bigint' or $attribute['DATA_TYPE'] == 'int')
+                $value = 'DEFAULT';
+            else if (strlen($_POST[$attribute['COLUMN_NAME']]) == 0)  $value = 'NULL';
+            else $value = $pdo->getPdo()->quote($_POST[$attribute['COLUMN_NAME']]);
+            $query .= $value . ', ';
         }
         $query = substr($query, 0, strlen($query) - 2);
         $query .= ')';
@@ -95,7 +96,7 @@ class Table
                         $query .= ', ';
                         $firstValuePassed = true;
                     }
-                    $query .= $this->_attributes[$i] . '=' . $pdo->getPdo()->quote($values[$i]);
+                    $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$i]);
                 }
             }
             $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
@@ -112,7 +113,7 @@ class Table
             $firstValuePassed = false;
             for ($i = 0; $i < sizeof($values); $i++){
                 if ($i > 0) $query .= ', ';
-                $query .= $this->_attributes[$i] . '=' . $pdo->getPdo()->quote($values[$i]);
+                $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$i]);
             }
             $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
             $updateStatement = $pdo->getPdo()->prepare($query);
@@ -145,4 +146,16 @@ class Table
     public function getRowAmount(): int    { return $this->_rowAmount; }
     public function getEmpty(): bool       { return $this->_empty; }
     public function getName(): string      { return $this->_name; }
+    public function getPk(): mixed { return $this->_pk; }
+
+
+    public static function getInputType(string $mysqlType) : string {
+        return match ($mysqlType) {
+            'int' => 'number',
+            'varchar', 'text', 'mediumtext', 'tinytext' => 'text',
+            'date' => 'date',
+            'datetime' => 'datetime-local',
+            default => 'notype',
+        };
+    }
 }
