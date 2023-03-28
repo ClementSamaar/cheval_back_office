@@ -46,6 +46,7 @@
                     foreach ($options[1] as $option) {
                         echo '<option value="' . $option . '">' . ucfirst($option) . '</option>';
                     }
+                    echo '</select><br>';
                 }
                 else {
                     echo '
@@ -67,15 +68,6 @@
 	  <div class="form-popup" id="myForm1">
 		<form method="POST" action="?ctrl=table&action=updateRow" class="form-container">
 		  <h2>Modifier un élément</h2>
-		  <label for="nom"><b>Nom</b></label>
-		  <input type="text" placeholder="Entrer le nom" name="nom" required>
-	  
-		  <label for="description"><b>Description</b></label>
-		  <input type="text" placeholder="Entrer la description" name="description" required>
-	  
-		  <label for="prix"><b>Prix</b></label>
-		  <input type="text" placeholder="Entrer le prix" name="prix" required>
-	  
 		  <button type="submit" class="btn">Mettre à jour</button>
 		  <button type="button" class="btn cancel" onclick="closeForm()">Fermer</button>
 		</form>
@@ -108,7 +100,7 @@
                     <a href="?ctrl=table&action=deleteRow&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]['COLUMN_NAME']] . '">
                         <i class="fa-solid fa-trash"></i>
                     </a> 
-                    <a href="?ctrl=table&action=deleteRow&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]['COLUMN_NAME']] . '">
+                    <a href="?ctrl=table&action=showUpdateForm&table=' . $A_view['tableName'] . '&id=' . $row[$A_view['tableAttributes'][0]['COLUMN_NAME']] . '">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                   </td>';

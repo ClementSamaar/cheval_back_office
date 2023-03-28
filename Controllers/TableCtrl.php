@@ -72,8 +72,50 @@ class TableCtrl
             $values = $_POST;
             $table = new Table($pdo, $_GET['table']);
             $table->insertRow($pdo);
+            header('Location: ?ctrl=table&action=selectRows&table=' . $_GET['table'] . '&page=1');
+            exit();
         }
         else echo 'Permission denied !';
+    }
+
+    public function showUpdateFormAction() {
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+        $pdo->connect();
+        $table = new Table($pdo, $_GET['table']);
+        $row = $table->select($pdo, $_GET['id']);
+        echo '<form method="POST" action="?ctrl=table&action=updateRow&table=' . $table->getName() . '&id=' . $_GET['id'] . '" class="form-container">';
+        foreach ($table->getAttributes() as $attribute) {
+            if ($attribute['COLUMN_NAME'] == $table->getPk() and $attribute['DATA_TYPE'] == 'bigint' or $attribute['DATA_TYPE'] == 'int')
+                continue;
+            elseif ($attribute['DATA_TYPE'] == 'enum') {
+                echo '
+                    <label for="' . $attribute['COLUMN_NAME'] . '"><b>' . $attribute['COLUMN_NAME'] . '</b></label>
+                    <select name="' . $attribute['COLUMN_NAME'] . '" id="' . $attribute['COLUMN_NAME'] . '">';
+                if ($attribute['IS_NULLABLE']) echo '<option value="NULL"></option>';
+                if (!is_null($row[$attribute['COLUMN_NAME']]))
+                    echo '<option value="' . $row[$attribute['COLUMN_NAME']] . '" selected>' . ucfirst($row[$attribute['COLUMN_NAME']]) . '</option>';
+                preg_match_all("/'(\w+)'/", $attribute['COLUMN_TYPE'], $options);
+                foreach ($options[1] as $option) {
+                    if ($option != $row[$attribute['COLUMN_NAME']])
+                        echo '<option value="' . $option . '">' . ucfirst($option) . '</option>';
+                }
+                echo '</select>';
+            }
+            else {
+                echo '
+                    <label for="' . $attribute['COLUMN_NAME'] . '"><b>' . $attribute['COLUMN_NAME'] . '</b></label>
+                    <input type="' . Table::getInputType($attribute['DATA_TYPE']) . '" 
+                           name="' . $attribute['COLUMN_NAME'] . '" 
+                           id="' . $attribute['COLUMN_NAME'] . '"
+                           value="' . $row[$attribute['COLUMN_NAME']] . '"';
+                if (isset($attribute['CHARACTER_MAXIMUM_LENGTH'])) echo ' maxlength="' . $attribute['CHARACTER_MAXIMUM_LENGTH'] . '"';
+                if ($attribute['IS_NULLABLE'] == 'NO') echo ' required';
+                echo '>';
+            }
+        }
+        echo '
+            <button type="submit" class="btn">Mettre à jour</button>
+            </form>';
     }
 
     public function updateRowAction() {
@@ -81,8 +123,12 @@ class TableCtrl
         $pdo->connect();
         $user = new User($_ENV[$_SESSION['envUsernameVar']]);
         $user->fetchGrants();
+        var_dump($_POST);
         if (in_array('Update', $user->getPrivileges())) {
-
+            $table = new Table($pdo, $_GET['table']);
+            $table->updateRow($pdo, $_GET['id'], $_POST);
+            /*header('Location: ?ctrl=table&action=selectRows&table=' . $_GET['table'] . '&page=1');
+            exit();*/
         }
         else echo 'Permission denied !';
     }

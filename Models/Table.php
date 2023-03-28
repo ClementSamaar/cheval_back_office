@@ -66,6 +66,14 @@ class Table
         return $insertStatement->execute();
     }
 
+    public function select(PDOConnect $pdo, int $id) : array {
+        $pdo->connect();
+        $query = 'SELECT * FROM ' . $this->_name . ' WHERE ' . $this->_pk . '=' . $id;
+        $tableData = $pdo->getPdo()->prepare($query);
+        $tableData->execute();
+        return $tableData->fetch();
+    }
+
     public function selectAll(PDOConnect $pdo, int $limit, int $pageNumber) : void {
         $pdo->connect();
         $query = 'SELECT * FROM ' . $this->_name . ' LIMIT ' . $limit . ' OFFSET ' . $limit * ($pageNumber - 1);
@@ -85,42 +93,39 @@ class Table
         $this->initData($tableData);
     }
 
-    /*public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {
-        $pdo->connect();
-        if (sizeof($this->_attributes) == sizeof($values)) {
-            $query = 'UPDATE ' . $this->_name . ' SET ';
-            $firstValuePassed = false;
-            for ($i = 0; $i < sizeof($values); $i++){
-                if (!is_null($values[$i])) {
-                    if ($i - 1 > 0 and $i > 0 and !is_null($values[$i - 1]) or $firstValuePassed) {
-                        $query .= ', ';
-                        $firstValuePassed = true;
-                    }
-                    $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$i]);
-                }
-            }
-            $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
-            $updateStatement = $pdo->getPdo()->prepare($query);
-            return $updateStatement->execute();
-        }
-        else return false;
-    }*/
-
     public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {
         $pdo->connect();
-        if (sizeof($this->_attributes) == sizeof($values)) {
+        if (sizeof($this->_attributes) - 1 == sizeof($values)) {
             $query = 'UPDATE ' . $this->_name . ' SET ';
-            $firstValuePassed = false;
             for ($i = 0; $i < sizeof($values); $i++){
-                if ($i > 0) $query .= ', ';
-                $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$i]);
+                if ($this->_attributes[$i]['COLUMN_NAME'] == $this->_pk) continue;
+                $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$this->_attributes[$i]['COLUMN_NAME']]) . ', ';
             }
+            $query = substr($query, 0, strlen($query) - 2);
             $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
             $updateStatement = $pdo->getPdo()->prepare($query);
+            var_dump($updateStatement);
             return $updateStatement->execute();
         }
         else return false;
     }
+
+    /*public function updateMultipleRows(PDOConnect $pdo, int $pkValue, array $values) : bool {
+        $pdo->connect();
+        if (sizeof($this->_attributes) - 1 == sizeof($values)) {
+            $query = 'UPDATE ' . $this->_name . ' SET ';
+            for ($i = 0; $i < sizeof($values); $i++){
+                if ($this->_attributes[$i]['COLUMN_NAME'] == $this->_pk) continue;
+                $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$this->_attributes[$i]['COLUMN_NAME']]) . ', ';
+            }
+            $query = substr($query, 0, strlen($query) - 2);
+            $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
+            $updateStatement = $pdo->getPdo()->prepare($query);
+            var_dump($updateStatement);
+            return $updateStatement->execute();
+        }
+        else return false;
+    }*/
 
     public function deleteRow(PDOConnect $pdo, int $pkValue) : bool {
         $pdo->connect();
