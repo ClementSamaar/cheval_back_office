@@ -31,7 +31,6 @@ class LogCtrl
             if (!isset($credentials) or !$credentials) {
                 echo 'ERROR';
                 header('Location: ?ctrl=log&action=displayLogin&error=1');
-                exit();
             }
             else {
                 var_dump($credentials);
@@ -48,8 +47,8 @@ class LogCtrl
                 $_SESSION['envUsernameVar'] = $envUsernameVar;
                 $_SESSION['envPasswordVar'] = $envPasswordVar;
                 header('Location: ?ctrl=table');
-                exit();
             }
+            exit();
         }
     }
 

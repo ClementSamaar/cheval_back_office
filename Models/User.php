@@ -2,9 +2,9 @@
 
 class User
 {
-    private string $username;
-    private ?array $privileges;
-    private array|string|null $grantedTables;
+    private $username;
+    private $privileges;
+    private $grantedTables;
 
     public function __construct(string $username) {
         $this->username = $username;
@@ -70,7 +70,7 @@ class User
 
     public function getPrivileges(): ?array { return $this->privileges; }
 
-    public function getGrantedTables(): array|string|null { return $this->grantedTables; }
+    public function getGrantedTables(): ?array { return $this->grantedTables; }
 
 
 }

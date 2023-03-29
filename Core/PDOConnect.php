@@ -2,12 +2,12 @@
 
 class PDOConnect
 {
-    private ?PDO $_pdo = null;
+    private $_pdo = null;
 
-    private string $_host;
-    private string $_database;
-    private string $_dbUsername;
-    private string $_dbPass;
+    private $_host;
+    private $_database;
+    private $_dbUsername;
+    private $_dbPass;
 
 
     public function __construct(string $dbUsername, string $dbPass) {

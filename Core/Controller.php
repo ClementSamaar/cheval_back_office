@@ -2,7 +2,7 @@
 
 class Controller
 {
-    private array $_urlArgs;
+    private $_urlArgs;
 
     public function __construct(?string $ctrl, ?string $action){
         if (!isset($ctrl)){

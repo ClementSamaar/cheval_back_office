@@ -2,12 +2,12 @@
 
 class Table
 {
-    private string $_name;
-    private string $_pk;
-    private array  $_attributes;
-    private array  $_rows;
-    private int    $_rowAmount;
-    private bool   $_empty;
+    private $_name;
+    private $_pk;
+    private $_attributes;
+    private $_rows;
+    private $_rowAmount;
+    private $_empty;
 
     public function __construct(PDOConnect $pdo, string $tableName) {
         $this->_name = $tableName;
@@ -164,16 +164,24 @@ class Table
     public function getRowAmount(): int    { return $this->_rowAmount; }
     public function getEmpty(): bool       { return $this->_empty; }
     public function getName(): string      { return $this->_name; }
-    public function getPk(): mixed { return $this->_pk; }
+    public function getPk() { return $this->_pk; }
 
 
     public static function getInputType(string $mysqlType) : string {
-        return match ($mysqlType) {
-            'int' => 'number',
-            'varchar', 'text', 'mediumtext', 'tinytext' => 'text',
-            'date' => 'date',
-            'datetime' => 'datetime-local',
-            default => 'notype',
-        };
+        switch ($mysqlType) {
+            case 'int' :
+                return 'number';
+            case 'varchar' :
+            case 'text' :
+            case 'mediumtext' :
+            case 'tinytext' :
+                return 'text';
+            case 'date' :
+                return 'date';
+            case 'datetime' :
+                return 'datetime-local';
+            default :
+                return 'notype';
+        }
     }
 }
