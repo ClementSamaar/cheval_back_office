@@ -24,7 +24,7 @@ class PDOConnect
     {
         if ($this->_pdo === null){
             try {
-                $this->_pdo = new PDO(sprintf("mysql:host=%s;port=3307;dbname=%s", $this->_host, $this->_database),
+                $this->_pdo = new PDO(sprintf("mysql:host=%s;port=3306;dbname=%s", $this->_host, $this->_database),
                     $this->_dbUsername,
                     $this->_dbPass);
 
