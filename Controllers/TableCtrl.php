@@ -63,6 +63,32 @@ class TableCtrl
         );
     }
 
+    public function orderRowsAction() {
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+        $pdo->connect();
+        $user = new User($_ENV[$_SESSION['envUsernameVar']]);
+        $user->fetchGrants();
+        $table = new Table($pdo, $_GET['table']);
+        if (!empty($user->getPrivileges()) and in_array('Select', $user->getPrivileges())){
+            if (isset($_GET['table']) and in_array($_GET['table'], $user->getGrantedTables())) {
+                $table->orderBy($pdo, $_GET['attribute'], $_GET['order'], 10, $_GET['page']);
+            }
+            else {
+                header('Location: ?ctrl=table');
+                exit();
+            }
+        }
+        $this->showTableAction(
+            $user->getPrivileges(),
+            $table->getAttributes() ?? null,
+            $table->getRows() ?? null,
+            $_GET['table'] ?? null,
+            $table->getPk(),
+            $table->getRowAmount() ?? null,
+            $_GET['page'] ?? 1
+        );
+    }
+
     public function insertRowAction() {
         $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
         $pdo->connect();

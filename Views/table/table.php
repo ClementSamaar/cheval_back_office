@@ -86,7 +86,10 @@
             <th></th>
             <?php
             foreach ($A_view['tableAttributes'] as $attribute) {
-                echo '<th>' . $attribute['COLUMN_NAME'] . '</th>';
+                echo '<th><a href="?ctrl=table&action=orderRows&table=' . $A_view['tableName'] . '&attribute=' . $attribute['COLUMN_NAME'];
+                if (isset($_GET['order']) and $_GET['order'] == 'DESC') $order = 'ASC';
+                else $order = 'DESC';
+                echo '&order=' . $order . '&page=' . $_GET['page'] . '">' . $attribute['COLUMN_NAME'] . '</a></th>';
             }
             ?>
         </tr>
