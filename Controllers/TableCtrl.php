@@ -9,7 +9,7 @@ class TableCtrl
         if (!empty($user->getGrantedTables())){
             echo '<ul>';
             foreach ($user->getGrantedTables() as $table){
-                echo '<li><a href="?ctrl=table&action=selectRows&table=' . $table . '&page=1">' . $table . '</a></li>';
+                echo '<li><a href="?ctrl=table&action=selectAllRows&table=' . $table . '&page=1">' . $table . '</a></li>';
             }
             echo '</ul>';
         }
@@ -37,7 +37,7 @@ class TableCtrl
         View::show('common/template', $A_content);
     }
 
-    public function selectRowsAction() {
+    public function selectAllRowsAction() {
         $user = new User($_ENV[$_SESSION['envUsernameVar']]);
         $user->fetchGrants();
         $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
@@ -62,6 +62,32 @@ class TableCtrl
             $_GET['page'] ?? 1
         );
     }
+
+    /*public function selectRowsAction() {
+        $user = new User($_ENV[$_SESSION['envUsernameVar']]);
+        $user->fetchGrants();
+        $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+        $pdo->connect();
+        $table = new Table($pdo, $_GET['table']);
+        if (!empty($user->getPrivileges()) and in_array('Select', $user->getPrivileges())){
+            if (isset($_GET['table']) and in_array($_GET['table'], $user->getGrantedTables())) {
+                $table->selectByAttributes($pdo, $_POST['whereClause'],10, $_GET['page']);
+            }
+            else {
+                header('Location: ?ctrl=table');
+                exit();
+            }
+        }
+        $this->showTableAction(
+            $user->getPrivileges(),
+            $table->getAttributes() ?? null,
+            $table->getRows() ?? null,
+            $_GET['table'] ?? null,
+            $table->getPk(),
+            $table->getRowAmount() ?? null,
+            $_GET['page'] ?? 1
+        );
+    }*/
 
     public function orderRowsAction() {
         $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
@@ -108,7 +134,7 @@ class TableCtrl
         $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
         $pdo->connect();
         $table = new Table($pdo, $_GET['table']);
-        $row = $table->select($pdo, $_GET['id']);
+        $row = $table->selectById($pdo, $_GET['id']);
         echo '<form method="POST" action="?ctrl=table&action=updateRow&table=' . $table->getName() . '&id=' . $_GET['id'] . '" class="form-container">';
         foreach ($table->getAttributes() as $attribute) {
             if ($attribute['COLUMN_NAME'] == $table->getPk() and $attribute['DATA_TYPE'] == 'bigint' or $attribute['DATA_TYPE'] == 'int')

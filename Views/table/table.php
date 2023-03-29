@@ -8,7 +8,6 @@
 	<link rel="stylesheet" href="Views/style.css">
 	<title>Interface d'admnistration</title>
 </head>
-<body>
 	<section id="header">
 		<a href="?ctrl=user"><i class="fa-solid fa-user"></i></a>
 		<i class="fa-solid fa-clipboard-check"></i>
@@ -72,9 +71,6 @@
 		  <button type="button" class="btn cancel" onclick="closeForm()">Fermer</button>
 		</form>
 	  </div>
-	  
-	<input type="text" placeholder="Recherche...">
-	<br><br>
 
 	<input type="checkbox" id="checkAll"> Tout cocher</input>
 
@@ -119,12 +115,12 @@
     <section class="pagination">
         <?php
                 if ($A_view['page'] > 1)
-                    echo '<a href="?ctrl=table&action=showTable&table=' . $A_view['tableName'] . '&page=' . $A_view['page'] - 1 . ' ">&laquo;</a>';
+                    echo '<a href="?ctrl=table&action=selectAllRows&table=' . $A_view['tableName'] . '&page=' . $A_view['page'] - 1 . ' ">&laquo;</a>';
 
                 echo '<p>Page ' . $A_view['page'] . '</p>';
 
                 if ($A_view['rowAmount'] > $A_view['page'] * 10 )
-                    echo '<a href="?ctrl=table&action=showTable&table=' . $A_view['tableName'] . '&page=' . $A_view['page'] + 1 . ' ">&raquo;</a>';
+                    echo '<a href="?ctrl=table&action=selectAllRows&table=' . $A_view['tableName'] . '&page=' . $A_view['page'] + 1 . ' ">&raquo;</a>';
 		    }
             else echo '<p>Vous n\'avez pas le droit de visionner cette vue</p>';
         }

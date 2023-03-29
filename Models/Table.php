@@ -66,13 +66,26 @@ class Table
         return $insertStatement->execute();
     }
 
-    public function select(PDOConnect $pdo, int $id) : array {
+    public function selectById(PDOConnect $pdo, int $id) : array {
         $pdo->connect();
         $query = 'SELECT * FROM ' . $this->_name . ' WHERE ' . $this->_pk . '=' . $id;
         $tableData = $pdo->getPdo()->prepare($query);
         $tableData->execute();
         return $tableData->fetch();
     }
+
+    /*public function selectByAttributes(PDOConnect $pdo, string $whereClause, int $limit, int $pageNumber) : void {
+        $pdo->connect();
+        $whereExprs = explode(',', $whereClause);
+        foreach ($whereExprs as $whereExpr) {
+            $explodedExpr = explode('=', $whereExpr);
+        }
+        $query = 'SELECT * FROM ' . $this->_name . ' WHERE ' . $whereClause . ' LIMIT ' . $limit . ' OFFSET ' . $limit * ($pageNumber - 1);
+        $tableData = $pdo->getPdo()->prepare($query);
+        $tableData->execute();
+        $tableData = $tableData->fetchAll(PDO::FETCH_ASSOC);
+        $this->initData($tableData);
+    }*/
 
     public function selectAll(PDOConnect $pdo, int $limit, int $pageNumber) : void {
         $pdo->connect();
