@@ -23,7 +23,7 @@ class LogCtrl
                 SELECT authentication_string 
                 FROM user 
                 WHERE User=:username
-                AND authentication_string=PASSWORD(:password)');
+                AND password=PASSWORD(:password)');
             $credentials->bindParam(':username', $_POST['username']);
             $credentials->bindParam(':password', $_POST['password']);
             $credentials->execute();

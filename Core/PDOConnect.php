@@ -12,7 +12,7 @@ class PDOConnect
 
     public function __construct(string $dbUsername, string $dbPass) {
         $this->_host = $_ENV['DB_HOST_NAME'];
-        if ($dbUsername == 'root'){
+        if ($dbUsername == 'adminer'){
             $this->_database = 'mysql';
         }
         else $this->_database = $_ENV['DB_DATABASE_NAME'];
