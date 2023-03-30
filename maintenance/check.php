@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . 'includes.php';
+require __DIR__ . '/includes.php';
 
 $pdo = new PDOConnect($_ENV['DB_CS_COMMUNITY_MANAGER_USERNAME'], $_ENV['DB_CS_COMMUNITY_MANAGER_PASS']);
 $pdo->connect();
