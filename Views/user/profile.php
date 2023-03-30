@@ -30,8 +30,10 @@
     else {?>
         <ul>
             <?php
-            foreach ($A_view['userTable'] as $userPrivilege){
-                echo '<li>' . $userPrivilege . '</li>';
+            $pdo = new PDOConnect($_ENV[$_SESSION['envUsernameVar']], $_ENV[$_SESSION['envPasswordVar']]);
+            $pdo->connect();
+            foreach ($A_view['userTable'] as $userTable){
+                echo '<li>' . $userTable . ' - Status : ' . Table::checkAction($pdo, $userTable) . '</li>';
             }
             ?>
         </ul>

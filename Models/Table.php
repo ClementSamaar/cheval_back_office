@@ -187,4 +187,12 @@ class Table
                 return 'notype';
         }
     }
+
+    public static function checkAction(PDOConnect $pdo, string $table) : string {
+        $pdo->connect();
+        $check = $pdo->getPdo()->prepare('CHECK TABLE ' . $table);
+        $check->execute();
+        $checkResult = $check->fetch(PDO::FETCH_ASSOC);
+        return $checkResult['Msg_text'];
+    }
 }

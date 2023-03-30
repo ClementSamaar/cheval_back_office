@@ -11,7 +11,7 @@ class UserCtrl
             'bodyView' => 'user/profile',
             'bodyContent' => [
                 'userPrivileges' => $user->getPrivileges(),
-                'userTable'      => $user->getGrantedTables()
+                'userTable'      => $user->getGrantedTables(),
             ]
         ];
 
