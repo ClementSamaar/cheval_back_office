@@ -113,6 +113,7 @@ class TableCtrl
             $_GET['table'] ?? null,
             $table->getPk(),
             $table->getRowAmount() ?? null,
+            10,
             $_GET['page'] ?? 1
         );
     }
@@ -194,8 +195,9 @@ class TableCtrl
         $user->fetchGrants();
         if (in_array('Delete', $user->getPrivileges())) {
             $table = new Table($pdo, $_GET['table']);
-            $table->deleteRow($pdo, $_GET['id']);
-            header('Location: ?ctrl=table&action=selectRows&table=' . $_GET['table'] . '&page=1');
+            if ($table->deleteRow($pdo, $_GET['id']))
+                header('Location: ?ctrl=table&action=selectAllRows&table=' . $_GET['table'] . '&page=1');
+            else header('Location: ?ctrl=table&action=selectAllRows&table=' . $_GET['table'] . '&page=1&error=1');
             exit();
         }
         else echo 'Permission denied !';

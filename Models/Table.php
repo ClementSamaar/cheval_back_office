@@ -85,7 +85,7 @@ class Table
         $tableData = $pdo->getPdo()->prepare($query);
         $tableData->execute();
         $tableData = $tableData->fetchAll(PDO::FETCH_ASSOC);
-        $this->initData($tableData);
+        $this->initData($tableData, $limit);
     }*/
 
     public function selectAll(PDOConnect $pdo, int $limit, int $pageNumber) : void {
@@ -104,7 +104,7 @@ class Table
         $tableData = $pdo->getPdo()->prepare($query);
         $tableData->execute();
         $tableData = $tableData->fetchAll(PDO::FETCH_ASSOC);
-        $this->initData($tableData);
+        $this->initData($tableData, $limit);
     }
 
     public function updateRow(PDOConnect $pdo, int $pkValue, array $values) : bool {
@@ -145,9 +145,15 @@ class Table
 
     public function deleteRow(PDOConnect $pdo, int $pkValue) : bool {
         $pdo->connect();
-        $query = 'DELETE FROM ' . $this->_name . ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
-        $deleteStatement = $pdo->getPdo()->prepare($query);
-        return $deleteStatement->execute();
+        try {
+            $query = 'DELETE FROM ' . $this->_name . ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);
+            $deleteStatement = $pdo->getPdo()->prepare($query);
+            $deleteStatement->execute();
+        }
+        catch (PDOException $e) {
+            return false;
+        }
+        return true;
     }
 
     public function deleteMultipleRows(PDOConnect $pdo, array $pkValues) : array {
