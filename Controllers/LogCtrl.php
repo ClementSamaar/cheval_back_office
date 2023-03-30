@@ -31,6 +31,7 @@ class LogCtrl
             if (!isset($credentials) or !$credentials) {
                 echo 'ERROR';
                 header('Location: ?ctrl=log&action=displayLogin&error=1');
+                exit();
             }
             else {
 
