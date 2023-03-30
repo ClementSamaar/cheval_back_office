@@ -22,8 +22,9 @@
          <button type="submit" name="submit" id="submit">Se connecter</button>
         </div>
         <?php
-        if (isset($A_view['error']) and $A_view['error'] == '1')
-            echo '<p>Les informations entrées sont incorrectes, veuillez réessayer</p>';
+        if (isset($A_view['error']))
+            if ($A_view['error'] == '1') echo '<p>Les informations entrées sont incorrectes, veuillez réessayer</p>';
+            if ($A_view['error'] == '2') echo '<p>Ce compte est inaccessible depuis cette interface</p>';
         ?>
     </form>
       

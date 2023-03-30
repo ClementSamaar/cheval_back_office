@@ -20,10 +20,10 @@ class LogCtrl
             $pdo = new PDOConnect($_ENV['DB_ROOT_USERNAME'], $_ENV['DB_ROOT_PASS']);
             $pdo->connect();
             $credentials = $pdo->getPdo()->prepare('
-                SELECT authentication_string 
-                FROM user 
-                WHERE User=:username
-                AND password=PASSWORD(:password)');
+            SELECT authentication_string 
+            FROM user 
+            WHERE User=:username
+            AND password=PASSWORD(:password)');
             $credentials->bindParam(':username', $_POST['username']);
             $credentials->bindParam(':password', $_POST['password']);
             $credentials->execute();
@@ -33,15 +33,12 @@ class LogCtrl
                 header('Location: ?ctrl=log&action=displayLogin&error=1');
             }
             else {
-                var_dump($credentials);
+
                 $envUsernameVar = 'DB_' . strtoupper($_POST['username']) . '_USERNAME';
                 $envPasswordVar = 'DB_' . strtoupper($_POST['username']) . '_PASS';
                 if (!isset($_ENV[$envUsernameVar])){
-                    putenv($envUsernameVar . '=' . $_POST['username']);
-                }
-
-                if (!isset($_ENV[$envPasswordVar])){
-                    putenv($envPasswordVar . '=' . $_POST['password']);
+                    header('Location: ?ctrl=log&action=displayLogin&error=2');
+                    exit();
                 }
 
                 $_SESSION['envUsernameVar'] = $envUsernameVar;

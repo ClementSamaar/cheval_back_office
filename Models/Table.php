@@ -32,10 +32,11 @@ class Table
         $this->_attributes = $attributes->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    private function initData(array $tableData) : void {
+    private function initData(array $tableData, int $limit) : void {
         if (!empty($tableData)){
             $this->_empty = false;
             $this->_rowAmount = sizeof($tableData);
+            if ($this->_rowAmount > $limit) array_pop($tableData);
 
             // INIT ROWS
             foreach ($tableData as $row){
@@ -89,11 +90,11 @@ class Table
 
     public function selectAll(PDOConnect $pdo, int $limit, int $pageNumber) : void {
         $pdo->connect();
-        $query = 'SELECT * FROM ' . $this->_name . ' LIMIT ' . $limit . ' OFFSET ' . $limit * ($pageNumber - 1);
+        $query = 'SELECT * FROM ' . $this->_name . ' LIMIT ' . $limit + 1 . ' OFFSET ' . $limit * ($pageNumber - 1);
         $tableData = $pdo->getPdo()->prepare($query);
         $tableData->execute();
         $tableData = $tableData->fetchAll(PDO::FETCH_ASSOC);
-        $this->initData($tableData);
+        $this->initData($tableData, $limit);
     }
 
     public function orderBy(PDOConnect $pdo, string $attribute, string $order, int $limit, int $pageNumber) : void {
@@ -112,7 +113,9 @@ class Table
             $query = 'UPDATE ' . $this->_name . ' SET ';
             for ($i = 0; $i < sizeof($values); $i++){
                 if ($this->_attributes[$i]['COLUMN_NAME'] == $this->_pk) continue;
-                $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $pdo->getPdo()->quote($values[$this->_attributes[$i]['COLUMN_NAME']]) . ', ';
+                else if (strlen($values[$this->_attributes[$i]['COLUMN_NAME']]) == 0)  $value = 'NULL';
+                else $value = $pdo->getPdo()->quote($values[$this->_attributes[$i]['COLUMN_NAME']]);
+                $query .= $this->_attributes[$i]['COLUMN_NAME'] . '=' . $value . ', ';
             }
             $query = substr($query, 0, strlen($query) - 2);
             $query .= ' WHERE ' . $this->_pk . '=' . $pdo->getPdo()->quote($pkValue);

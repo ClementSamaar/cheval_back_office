@@ -119,12 +119,12 @@
 
                 echo '<p>Page ' . $A_view['page'] . '</p>';
 
-                if ($A_view['rowAmount'] > $A_view['page'] * 10 )
+                if ($A_view['rowAmount'] > $A_view['limit'])
                     echo '<a href="?ctrl=table&action=selectAllRows&table=' . $A_view['tableName'] . '&page=' . $A_view['page'] + 1 . ' ">&raquo;</a>';
 		    }
-            else echo '<p>Vous n\'avez pas le droit de visionner cette vue</p>';
+            else echo '<p>Vous n\'avez pas le droit de visionner cette table</p>';
         }
-        else echo ''
+        else echo '';
 		?>
     </section>
 

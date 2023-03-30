@@ -16,7 +16,7 @@ class TableCtrl
         else echo '<p>Cet utilisateur n\'a accès à aucune table</p>';
     }
 
-    private function showTableAction(array $privileges, ?array $attributes, ?array $rows, ?string $name, ?string $pk, ?int $rowAmount, ?int $page) {
+    private function showTableAction(array $privileges, ?array $attributes, ?array $rows, ?string $name, ?string $pk, ?int $rowAmount, ?int $limit, ?int $page) {
         if (!empty($privileges) and in_array('Select', $privileges)) $select = true;
         else $select = false;
         $A_content = [
@@ -30,6 +30,7 @@ class TableCtrl
                 'tableName'       => $name,
                 'pk'              => $pk,
                 'rowAmount'       => $rowAmount,
+                'limit'           => $limit,
                 'page'            => $page
             ]
         ];
@@ -59,6 +60,7 @@ class TableCtrl
             $_GET['table'] ?? null,
             $table->getPk(),
             $table->getRowAmount() ?? null,
+            10,
             $_GET['page'] ?? 1
         );
     }
